@@ -6,5 +6,8 @@ A few days ago, I decided to switch to MooTools. Beside impressive builtin-funct
 
 I alwyas try to write my extensions considered and with foresight, but for the case you encounter a problem, please feel free to contact me or -- even better -- drop an issue.
 
-*	**mootex.core.hash.DeepCombine.js** 
+## List of extensions
+
+*	**mootex.core.hash.DeepCombine.js**  
+
 	By default __Hash.combine__ only does shallow combinations. the __DeepCombine-extension__ allows deep combination just by adding a second (boolean) parameter. For more details see the ScriptDoc comments inside the file.  
