@@ -1,4 +1,3 @@
-
 Hash.implement({
 	
 	/**
@@ -16,28 +15,36 @@ Hash.implement({
 	 * combined (referred to as <b>deep</b>). When FALSE or ommited, the default 
 	 * implementation of <b>Hash.combine</b> is used.
 	 */
-	combine: function(properties, deep) {
+	combine: function(properties, deep, bare) {
 	 	
+		var include = (!!bare) 
+				? function(ref, k, v) {	this[k] = v; }
+				: function(ref, k, v) { Hash.include(ref, k, v); };
+		
 		var fnCallee = arguments.callee;
 		
-		var	fnShallow = function(value, key) {		
+		var	fnShallow = function(value, key) {
+			// hello mr. generic		
 			Hash.include(this, key, value);     	 
 		};
 		
 		var	fnDeep = function(value, key) {
-			if (	value.constructor.name === "Object"
+			//if (	value.constructor.name === "Object"
+			if (	true
 				&&	this.hasOwnProperty(key)
 				&&	this[key].constructor.name === "Object") 
 			{
 				// starting recursion
-				fnCallee.call(this[key], value, true);
+				fnCallee.call(this[key], value, true, !!bare);
 				return;
 			}			
-			Hash.include(this, key, value);     	 
+			// hello mr. generic
+			include(this, key, value);
 		};
 					
 		Hash.each(properties || {}, ((!!deep) ? fnDeep : fnShallow), this);	 
 
 		return this;
-	}	 
+	}
 });
+
