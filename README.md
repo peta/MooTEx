@@ -7,8 +7,8 @@ A few days ago, I decided to switch to MooTools. Beside impressive builtin-funct
 I alwyas try to write my extensions considered and with foresight, but for the case you encounter a problem, please feel free to contact me or -- even better -- drop an issue.
 
 
-## List of extensions
-
+## List of extensions  
+  
 
 *	mootex.core.hash.DeepCombine.js
 *	mootex.core.hash.GenerateFromPath.js
