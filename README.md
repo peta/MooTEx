@@ -9,9 +9,9 @@ I alwyas try to write my extensions considered and with foresight, but for the c
  
 ## List of extensions 
 
-*	mootex.core.hash.DeepCombine.js
-*	mootex.core.hash.GenerateFromPath.js
-*	mootex.mod.NamespaceManager.js
++	mootex.core.hash.DeepCombine.js
++	mootex.core.hash.GenerateFromPath.js
++	mootex.mod.NamespaceManager.js
 
 
 ### mootex.core.hash.DeepCombine.js
