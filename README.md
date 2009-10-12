@@ -8,7 +8,6 @@ I alwyas try to write my extensions considered and with foresight, but for the c
 
  
 ## List of extensions 
- 
 
 *	mootex.core.hash.DeepCombine.js
 *	mootex.core.hash.GenerateFromPath.js
@@ -16,11 +15,12 @@ I alwyas try to write my extensions considered and with foresight, but for the c
 
 
 ### mootex.core.hash.DeepCombine.js
-By default __Hash.combine(**a**, **b**)__ does shallow combinations and unlinks (duplicates) the **operand b**. There are often situations where a deep combination is desired and/or objects (!=literals) within **operand b** should be included by reference instead of duplication. The __DeepCombine extension__ allows exactly those operations.
-
-
+By default _Hash.combine(**a**, **b**)_ does shallow combinations and unlinks (duplicates) the **operand b**. There are often situations where a deep combination is desired and/or objects (!=literals) within **operand b** should be included by reference instead of duplication. The _DeepCombine extension_ allows exactly those operations.
+  
+  
 ### mootex.core.hash.GenerateFromPath.js
-__Hash.Extras.GetFromPath__ and __GenerateFromPath__ are twins; unfortunately separated directly after their birth. Instead of getting a value FROM AN EXISTING OBJECT, __GenerateFromPath__ takes the dotted-namespace string and returns his corresponding object-structure.
+_Hash.Extras.GetFromPath_ and _GenerateFromPath_ are twins; unfortunately separated directly after their birth. Instead of getting a value FROM AN EXISTING OBJECT, _GenerateFromPath_ takes the dotted-namespace string and returns his corresponding object-structure.
+
 
 ### mootex.mod.NamespaceManager.js
 A module with pros and cons; to keep it short: Allows declaration and 
