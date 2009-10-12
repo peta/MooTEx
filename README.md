@@ -8,6 +8,21 @@ I alwyas try to write my extensions considered and with foresight, but for the c
 
 ## List of extensions
 
-*	**mootex.core.hash.DeepCombine.js**  
+    * mootex.core.hash.DeepCombine.js
+    * mootex.core.hash.GenerateFromPath.js
+    * mootex.mod.NamespaceManager.js
+ 
+ 
+### mootex.core.hash.DeepCombine.js
 
-	By default __Hash.combine__ only does shallow combinations. the __DeepCombine-extension__ allows deep combination just by adding a second (boolean) parameter. For more details see the ScriptDoc comments inside the file.  
+By default _Hash.combine(**a**, **b**)_ does shallow combinations and unlinks (duplicates) the **operand b**. There are often situations where a deep combination is desired and/or objects (!=literals) within **operand b** should be included by reference instead of duplication. The DeepCombine extension allows exactly those operations.
+ 
+ 
+### mootex.core.hash.GenerateFromPath.js
+
+Hash.Extras.GetFromPath and GenerateFromPath are twins; unfortunately separated directly after their birth. Instead of getting a value FROM AN EXISTING OBJECT, GenerateFromPath takes the dotted-namespace string and returns his corresponding object-structure.
+ 
+ 
+### mootex.mod.NamespaceManager.js
+
+Essentially _NamespaceManager_ just introduces an unobstrusive and handy idiom for working with namespace/-d objects. It allows for declaration and connection of namespaces and even the "compilation" of multiple namespaces into a single _"namespace connector"_ while remaining compact and straightforward. (See example file for more details) 
