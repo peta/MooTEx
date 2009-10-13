@@ -1,16 +1,23 @@
-/**
- * @author Peter Geil
- */
+//----------------------------------------------------
+//
+//  Author:		Peter Geil	(code@petergeil.name)
+//  License:	BSD-style
+//
+//----------------------------------------------------
+//  Copyright (c) 2009, Peter Geil
+//----------------------------------------------------
+
 
 
 
 var NamespaceManager = {
+	
+	// Entrypoint for namespaces objects
 	namespaces: {}
-};
-
-
-$extend(NamespaceManager, {
-	generateFromPath: function(nsStr, includeToplevelReference) {
+	
+	// Embedded mootex.core.hash.GenerateFromPath
+	// for the sake of performance (200% gain!!)
+	_generateFromPath: function(nsStr, includeToplevelReference) {
 	 	
 		if (!$chk(nsStr = nsStr.toString().trim())) return undefined;
 		
@@ -29,7 +36,6 @@ $extend(NamespaceManager, {
 		return (!!includeToplevelReference) 
 			? {	outer: a, inner: innermost } : a;
 	},
-	
 		
 	getDirectAccess: function(nsStr) {
 		
@@ -91,23 +97,42 @@ $extend(NamespaceManager, {
 		
 		return new NamespaceConnection(conn);
 	}
-});
+};
 
-// setting up some aliases
+// Hooking up some handy aliases
 var $NSM = NamespaceManager,
 	$connect = NamespaceManager.createConnection.bind(NamespaceManager),
 	$declare = NamespaceManager.declare.bind(NamespaceManager);
 	 
 
-
+/**
+ * NamespaceConnection is used to decorate
+ * a pre-populated namespace object with 
+ * additional namespace-specific behaviour.
+ * 
+ * @pattern Decorator
+ * @constructor
+ * @alias NamespaceConnection
+ * @param {Object} obj Pre-populated namespace object that gets wrapped
+ */
 var NamespaceConnection = new Class({
 	
 	initialize: function(obj) {		
 		Hash.combine(this, obj, false, true);
 	},
 	
+	/**
+	 * Takes a function as argument and shares this
+	 * NamespaceConnection with it. When called a
+	 * single argument is passed -- a reference to
+	 * this NSC. 
+	 * 
+	 * @method
+	 * @param {Function} fn Function with which this 
+	 * NamespaceConnection should be shared.
+	 */
 	shareWith: function(fn) {
-		if (Function.type(fn)) fn(this);
+		if (Function.type(fn)) fn.call(this, this);
 	}
 });
 
