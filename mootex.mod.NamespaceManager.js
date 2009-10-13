@@ -8,8 +8,6 @@
 //----------------------------------------------------
 
 
-
-
 var NamespaceManager = {
 	
 	// Entrypoint for namespaces objects
