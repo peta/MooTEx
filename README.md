@@ -25,4 +25,4 @@ Hash.Extras.GetFromPath and GenerateFromPath are twins; unfortunately separated 
  
 ### mootex.mod.NamespaceManager.js
 
-Essentially _NamespaceManager_ just introduces an unobstrusive and handy idiom for working with namespace/-d objects. It allows for declaration and connection of namespaces and even the "compilation" of multiple namespaces into a single _"namespace connector"_ while remaining compact and straightforward. (See example file for more details) 
+Essentially _NamespaceManager_ just introduces an unobstrusive and handy idiom for working with namespace/-d objects. It allows for declaration and connection of namespaces and even the temporary "compilation" of multiple namespaces into a single _"namespace connector"_ for local usage, while remaining compact and straightforward. (See example file for more details) 
