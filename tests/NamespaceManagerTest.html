@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+	<head>
+		<meta http-equiv="Content-Type" content="application/xhtml+xml; text/html; charset=utf-8" />
+		<title>Demo: NamespaceManager</title>
+         <script type='text/javascript' src='http://getfirebug.com/releases/lite/1.2/firebug-lite-compressed.js'></script>
+        <script type="text/javascript" src="lib-js/mootools-1.2.3-core.js"></script>
+        
+        <script type="text/javascript" src="lib-js/mootools.mod-core.peta.js"></script>
+        <script type="text/javascript" src="lib-js/mootex.core.hash.GenerateFromPath.js"></script>
+        <script type="text/javascript" src="lib-js/mootex.mod.NamespaceManager.js"></script>
+		
+        <script type="text/javascript" src="lib-js/tests/NamespaceManagerTest.js"></script>
+		
+		<style type="text/css">
+				
+			
+				
+		</style>
+
+	</head>
+	<body>
+		<h1>Testing NamespaceManager</h1>
+		
+		<script type="application/javascript">
+			window.addEvent("domready", function() {
+				
+				
+				$declare("aaa.bbb.ccc.ddd", function() {
+				    this.lulu = "CCCCCC";
+				});
+				
+				$declare("aaa.bbb2.ccc2.ddd2", function() {
+				    this.sdfsewrwe = "DDDDDDD";
+				});
+				
+				$declare("aaa.bbb2.ccc2.ddd2", function() {
+				    this.f345345345345sewrwe = "EEEEEEE";
+				});
+				
+				$declare("aaa2.bbb2.ccc2.ddd2", function() {
+				    this.f345345345345sewrwe = "FFFFFFFF";
+				});
+				
+				
+				
+				var b = $connect("aaa2.bbb2.ccc2.ddd2", 
+								 "aaa.bbb2.ccc2.ddd2", 
+								 "aaa.bbb2.ccc2.ddd2", 
+								 "aaa.bbb.ccc.ddd");
+				
+				var oma = {
+				    name: "gertrude"
+				};
+				
+				b.shareWith(function() {
+					//console.info("oma");
+					//var oma2 = oma;
+				    //oma2.name ="marianne";
+				    console.info("lulu");
+				    console.log(lulu);
+				    //console.log(oma2.name);
+				});
+
+				
+			});
+		</script>
+	</body>
+</html>
