@@ -9,39 +9,112 @@
 
 
 
+var Namespace = new Class({
+	
+	initialize: function(n) {
+		this.name = n;
+	},
+		
+	name: undefined,
+	
+	members: {},
+	
+	hasMember: function(name) {
+		return (this.members[name] !== undefined);
+	},
+	
+	subspaces: {},
+	
+	hasSubspace: function(name) {
+		return (this.subspaces[name] !== undefined);
+	}	
+});
+
+// Static type-checking method
+Namespace.type = function(obj) {
+	return obj instanceof this;
+}
+
 var NamespaceManager = {
 	
 	/**
 	 * Entrypoint for namespace objects
 	 */
-	namespaces: {},
+	namespaces: new Namespace("ROOT"),
 	
 	
 	/**
-	 * Embedded mootex.core.hash.GenerateFromPath
-	 * for the sake of performance (200% gain!!)
+	 * Takes a namespace-string and -- when valid --
+	 * creates the corresponding structure of 
+	 * Namespace-objects. The return value is object
+	 * consisting of three k/v-pairs, namely:
+	 *   <b>outer:</b> Reference to the root namespace-object
+	 *   <b>inner:</b> Reference to the innermost namespace-object
+	 *   <b>nsChain:</b> Array of the parsed namespace elements
 	 * 
-	 * @see mootex.core.hash.GenerateFromPath.js
+	 * @method
+	 * @param {String} nsStr Dotted namespace string
+	 * @return {Object}
 	 *
 	 */
-	_generateFromPath: function(nsStr, includeToplevelReference) {
+	_generateNsObjFromPath: function(nsStr) {
 	 	
 		if (!$chk(nsStr = nsStr.toString().trim())) return undefined;
-		
-	 	var splitted = nsStr.split("."),
-			outermost = {},			// current structure reference
+						
+	 	var	splitted = nsStr.split(".").erase(""),
+			outermost = (!!splitted.length) // current structure reference
+				? new Namespace(splitted.getLast()) : undefined,			
 			tmp,					// ctrl variable
-			innermost = outermost,	// ref to deepest obj
+			innermost = outermost,	// ref to innermost obj
 			ns;						// ctrl variable for ns segments
 		
-		while (ns = splitted.pop()) {
-			tmp = {};
-			tmp[ns] = outermost;
+		
+		for (var i = splitted.length - 2; i >= 0; i--) {
+			ns = splitted[i];
+			tmp = new Namespace(ns); 
+			tmp.subspaces[outermost.name] = outermost;
 			outermost = tmp;	
 		}
 		
-		return (!!includeToplevelReference) 
-			? {	outer: outermost, inner: innermost } : a;
+		return { outer: outermost, inner: innermost, nsChain: splitted };
+	},
+
+	
+	/**
+	 * Takes a namespace object and integrates it into
+	 * NamespaceManager's namespace tree. Existing members
+	 * won't be overridden.
+	 * 
+	 * @method
+	 * @param {Object} nsObj Object returned by <i>_generateNsObjFrompath</i>.
+	 */
+	_integrateNsObj: function(nsObj) {
+		
+		var	targetNs = this.namespaces,
+			sourceNs = nsObj.outer,
+			tmpName;
+		
+		for (var i = 0; i < nsObj.nsChain.length; i++) {
+			
+			tmpName = nsObj.nsChain[i];
+			if (targetNs.hasSubspace(tmpName)) {
+				// keeping target- & sourceNs on the same level
+				targetNs = targetNs.subspaces[tmpName];
+				sourceNs = (i == 0) ? sourceNs : sourceNs.subspaces[nsObj.nsChain[i]];
+				continue;				
+			}
+
+			// subspace doesn't exist yet; comparation to
+			// zero, because when a whole namespace string doesn't
+			// exist yet, we can simply assign sourceNs to the ns root
+			targetNs.subspaces[tmpName] = (i == 0) ? sourceNs : sourceNs.subspaces[nsObj.nsChain[i]];
+			return;
+		}
+					
+		Hash.each(sourceNs.members, function(value, key) {
+			// add only when property doesn't exist yet 
+			if (this[key] === undefined) this[key] = value;					
+		}, targetNs.members);	 
 	},
 	
 	
@@ -61,13 +134,15 @@ var NamespaceManager = {
 		// no argument automatically means roo-object
 		if (!arguments.length) return objRef;
 		 
-		var splitted = nsStr.trim().split(".");			
+		var splitted = nsStr.trim().split(".").erase("");			
 		
 		for (var i=0; i < splitted.length; i++) {
-			if (splitted[i] in objRef) {
-				objRef = objRef[splitted[i]];
+			
+			if (objRef.hasSubspace(splitted[i])) {
+				objRef = objRef.subspaces[splitted[i]];
 				continue;
 			}
+			console.error("doens exist");
 			// no "fallback" to root object
 			// instead returning undefined
 			return undefined;
@@ -112,15 +187,13 @@ var NamespaceManager = {
 		{
 			throw new TypeError("NamespaceManager.declare: Invalid arguments");
 		}
+		 
+		var nsObj = this._generateNsObjFromPath(nsStr);
+		
+		fn.call(nsObj.inner.members);
 		
 		// TODO: Have to assert that a property/class doesn't already exist (NS-Objects don't matter)
-		//if (this.exists(nsStr)) {
-			//throw new RangeError("NamespaceManager.declare: Namespace already declared");					
-		//}
-		 
-		var nsObj = this._generateFromPath(nsStr, true);
-		fn.call(nsObj.inner);
-		Hash.combine(this.namespaces, nsObj.outer, true);
+		this._integrateNsObj(nsObj);
 	},
 	
 	
@@ -132,17 +205,27 @@ var NamespaceManager = {
 	 * @param {String, Array} ns Dotted namespace strings to
 	 * @returns {NamespaceConnector}  
 	 */
-	createConnector: function(ns) {
+	createConnector: function() {
+
 		var conn = {},
-			namespaces = (([]).concat(ns)).filter(function(elem) {
-				return this.exists(elem);
-			}, this);
+			nsList = [];
 		
-		namespaces.each(function(item, index) {
-			Hash.combine(conn, this._getDirectReference(item), true);			
+		for (var i = 0, a; i < arguments.length; i++) {
+			a = arguments[i].toString();
+			if (this.exists(a)) {
+				nsList.push(a);
+			}
+		}
+		
+		var e;
+		nsList.each(function(item, index) {			
+			e = this._getDirectReference(item);
+			Hash.combine(conn, e.members, false, false);			
 		}, this);
-		
-		return new NamespaceConnector(conn);
+					
+		return ($defined(e)) 
+			? new NamespaceConnector(conn) 
+			: undefined;
 	}
 };
 
@@ -169,16 +252,88 @@ var NamespaceConnector = new Class({
 	
 	/**
 	 * Takes a function as argument and exposes the
-	 * contained namespace references to it. When called
-	 * a single argument is passed -- a reference to
-	 * this NSC. 
+	 * contained namespace members to it. When called,
+	 * the function is executed within the prepopulated
+	 * scope of this method and a single argument is 
+	 * passed -- a reference to this NSC. 
 	 * 
 	 * @method
 	 * @param {Function} fn Function to which this 
 	 * NamespaceConnector should expose his properties.
 	 */
-	shareWith: function(fn) {
+	shareWith: function(_fn) {
+		
+		if (!Function.type(_fn)) return;
+		
+		var _validKeys = [];
+		
+		var _k;
+		for (_k in this) {
+			if (   this.hasOwnProperty(_k) 
+				&& ["_current", "caller"].indexOf(_k) == -1)
+			{
+				_validKeys.push(_k);
+			}
+		}
+		
+		for (var _i=0, _tmpObj; _i < _validKeys.length; _i++) {
+			_tmpObj = this[_validKeys[_i]];
+						
+			// IE-specific
+			if (Browser.Engine.trident) {
+				window.eval("var " + _validKeys[_i] + "  = _tmpObj");
+			}
+			// Other UAs
+			else {
+				eval("var " + _validKeys[_i] + " = _tmpObj;");
+			}
+		}
+		
+		// Depending on the user-agent the passed
+		// function is converted into raw code
+		// and evaluated immediately => breaks
+		// the lexical scope 
+		if (Browser.Engine.trident) {
+			// Workaround for IE >= 6
+			window.eval("_fn = " + _fn);
+		}
+		else if (Browser.Engine.gecko){
+			// Works for FF
+			_fn = eval("(" + _fn.toSource() + ")");
+		}
+		else {
+			// Safari >= 4
+			_fn = eval("(" + _fn.toString() + ")");
+		}		
+		
+		// Cleaning up the local scope
+		delete _validKeys,
+			   _tmpObj, 
+			   _k, 
+			   _i;
+		
+		// Finally calling the passed function
+		_fn(this);		
+	},
+	
+	/**
+	 * The previous version of "shareWith".
+	 * Instead of prepopulating its local scope,
+	 * the passed function is bound to this NSC-instance
+	 * and a reference to it is passed.
+	 * 
+	 * So shared namespace members can be accessed in
+	 * two ways, namely:
+	 * 
+	 * 1) with a prepend "this" (e.g. this.MyClass ...)
+	 * 2) by naming the passed argument (e.g. 
+	 *    function (ns) { var foo = new ns.MyClass(); }
+	 * 
+	 */
+	shareWith2: function(fn) {
 		if (Function.type(fn)) fn.call(this, this);
 	}
 });
+
+
 
