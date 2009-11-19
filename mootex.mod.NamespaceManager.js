@@ -104,7 +104,7 @@ var NamespaceManager = {
 				continue;				
 			}
 
-			// subspace doesn't exist yet; comparation to
+			// subspace doesn't exist yet; comparing to
 			// zero, because when a whole namespace string doesn't
 			// exist yet, we can simply assign sourceNs to the ns root
 			targetNs.subspaces[tmpName] = (i == 0) ? sourceNs : sourceNs.subspaces[nsObj.nsChain[i]];
@@ -112,7 +112,6 @@ var NamespaceManager = {
 		}
 					
 		Hash.each(sourceNs.members, function(value, key) {
-			// add only when property doesn't exist yet 
 			if (this[key] === undefined) this[key] = value;					
 		}, targetNs.members);	 
 	},
